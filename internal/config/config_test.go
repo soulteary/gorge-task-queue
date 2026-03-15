@@ -61,3 +61,47 @@ func TestDSN(t *testing.T) {
 		t.Errorf("expected DSN %q, got %q", expected, dsn)
 	}
 }
+
+func TestLoadFromEnvQueueBackendDefaults(t *testing.T) {
+	cfg := LoadFromEnv()
+	if cfg.QueueBackend != "mysql" {
+		t.Errorf("expected default QueueBackend 'mysql', got %s", cfg.QueueBackend)
+	}
+	if cfg.RedisAddr != "127.0.0.1:6379" {
+		t.Errorf("expected default RedisAddr '127.0.0.1:6379', got %s", cfg.RedisAddr)
+	}
+	if cfg.RedisPassword != "" {
+		t.Errorf("expected default RedisPassword '', got %s", cfg.RedisPassword)
+	}
+	if cfg.RedisDB != 0 {
+		t.Errorf("expected default RedisDB 0, got %d", cfg.RedisDB)
+	}
+	if cfg.RedisKeyPrefix != "gorge:tq:" {
+		t.Errorf("expected default RedisKeyPrefix 'gorge:tq:', got %s", cfg.RedisKeyPrefix)
+	}
+}
+
+func TestLoadFromEnvRedisCustom(t *testing.T) {
+	t.Setenv("QUEUE_BACKEND", "redis")
+	t.Setenv("REDIS_ADDR", "redis-host:6380")
+	t.Setenv("REDIS_PASSWORD", "secret")
+	t.Setenv("REDIS_DB", "3")
+	t.Setenv("REDIS_KEY_PREFIX", "myapp:")
+
+	cfg := LoadFromEnv()
+	if cfg.QueueBackend != "redis" {
+		t.Errorf("expected QueueBackend 'redis', got %s", cfg.QueueBackend)
+	}
+	if cfg.RedisAddr != "redis-host:6380" {
+		t.Errorf("expected RedisAddr 'redis-host:6380', got %s", cfg.RedisAddr)
+	}
+	if cfg.RedisPassword != "secret" {
+		t.Errorf("expected RedisPassword 'secret', got %s", cfg.RedisPassword)
+	}
+	if cfg.RedisDB != 3 {
+		t.Errorf("expected RedisDB 3, got %d", cfg.RedisDB)
+	}
+	if cfg.RedisKeyPrefix != "myapp:" {
+		t.Errorf("expected RedisKeyPrefix 'myapp:', got %s", cfg.RedisKeyPrefix)
+	}
+}

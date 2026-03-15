@@ -10,7 +10,7 @@ import (
 )
 
 type Deps struct {
-	Store *queue.Store
+	Store queue.Store
 	Token string
 }
 

@@ -15,9 +15,21 @@ import (
 func main() {
 	cfg := config.LoadFromEnv()
 
-	store, err := queue.NewStore(cfg.DSN(), cfg.LeaseDuration, cfg.RetryWait)
+	var store queue.Store
+	var err error
+
+	switch cfg.QueueBackend {
+	case "redis":
+		store, err = queue.NewRedisStore(
+			cfg.RedisAddr, cfg.RedisPassword, cfg.RedisDB, cfg.RedisKeyPrefix,
+			cfg.LeaseDuration, cfg.RetryWait,
+		)
+	default:
+		store, err = queue.NewMySQLStore(cfg.DSN(), cfg.LeaseDuration, cfg.RetryWait)
+	}
+
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "failed to connect to database: %v\n", err)
+		fmt.Fprintf(os.Stderr, "failed to connect to %s backend: %v\n", cfg.QueueBackend, err)
 		os.Exit(1)
 	}
 	defer func() { _ = store.Close() }()

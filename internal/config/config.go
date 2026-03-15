@@ -7,11 +7,19 @@ import (
 )
 
 type Config struct {
-	MySQLHost     string
-	MySQLPort     int
-	MySQLUser     string
-	MySQLPass     string
-	Namespace     string
+	QueueBackend string // "mysql" (default) or "redis"
+
+	MySQLHost string
+	MySQLPort int
+	MySQLUser string
+	MySQLPass string
+	Namespace string
+
+	RedisAddr      string
+	RedisPassword  string
+	RedisDB        int
+	RedisKeyPrefix string
+
 	ListenAddr    string
 	ServiceToken  string
 	LeaseDuration int // seconds, default 7200 (2 hours)
@@ -22,11 +30,19 @@ type Config struct {
 
 func LoadFromEnv() *Config {
 	return &Config{
-		MySQLHost:     envStr("MYSQL_HOST", "127.0.0.1"),
-		MySQLPort:     envInt("MYSQL_PORT", 3306),
-		MySQLUser:     envStr("MYSQL_USER", "phorge"),
-		MySQLPass:     envStr("MYSQL_PASS", ""),
-		Namespace:     envStr("STORAGE_NAMESPACE", "phorge"),
+		QueueBackend: envStr("QUEUE_BACKEND", "mysql"),
+
+		MySQLHost: envStr("MYSQL_HOST", "127.0.0.1"),
+		MySQLPort: envInt("MYSQL_PORT", 3306),
+		MySQLUser: envStr("MYSQL_USER", "phorge"),
+		MySQLPass: envStr("MYSQL_PASS", ""),
+		Namespace: envStr("STORAGE_NAMESPACE", "phorge"),
+
+		RedisAddr:      envStr("REDIS_ADDR", "127.0.0.1:6379"),
+		RedisPassword:  envStr("REDIS_PASSWORD", ""),
+		RedisDB:        envInt("REDIS_DB", 0),
+		RedisKeyPrefix: envStr("REDIS_KEY_PREFIX", "gorge:tq:"),
+
 		ListenAddr:    envStr("LISTEN_ADDR", ":8090"),
 		ServiceToken:  envStr("SERVICE_TOKEN", ""),
 		LeaseDuration: envInt("LEASE_DURATION", 7200),
