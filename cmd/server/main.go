@@ -23,7 +23,17 @@ func main() {
 	defer func() { _ = store.Close() }()
 
 	e := echo.New()
-	e.Use(middleware.Logger())
+	e.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
+		LogStatus: true, LogURI: true, LogMethod: true, LogLatency: true, LogError: true,
+		LogValuesFunc: func(c echo.Context, v middleware.RequestLoggerValues) error {
+			if v.Error != nil {
+				e.Logger.Errorf("%s %s %d %v err=%v", v.Method, v.URI, v.Status, v.Latency, v.Error)
+			} else {
+				e.Logger.Infof("%s %s %d %v", v.Method, v.URI, v.Status, v.Latency)
+			}
+			return nil
+		},
+	}))
 	e.Use(middleware.Recover())
 
 	httpapi.RegisterRoutes(e, &httpapi.Deps{
