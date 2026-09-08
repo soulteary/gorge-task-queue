@@ -1,3 +1,7 @@
+项目合并至 https://github.com/soulteary/gorge 
+
+---
+
 # gorge-task-queue
 
 Gorge 平台中的任务队列微服务，以 Go 实现，替代 Phorge 原有的 PHP `PhabricatorWorkerLeaseQuery` MySQL 轮询模式。
